@@ -166,3 +166,15 @@ input:checked + .slider:before {
 .stock-solutions-container{
     margin-top: 20px;
 }
+
+.calculated-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fdfdfd;
+}
+
+.sub-unit {
+    font-size: 12px;
+    font-weight: normal;
+    color: #a0a0a0;
+}

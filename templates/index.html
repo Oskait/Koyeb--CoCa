@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Concentration Calculator</title>
-    <link href="/static/style.css" rel="stylesheet">
+    <link href="/static/style.css?v=1.2" rel="stylesheet">
 </head>
 <body>
-    <h1>Concentration Calculator</h1>
-
     <div class="container">
-        <h2>Compound</h2>
+        <button id="refresh-button" class="refresh-button">Refresh</button>
+
         <div class="input-group">
-            <label for="compound-select">Select Compound (or enter manually below)</label>
+            
             <select id="compound-select">
                 <option value="">-- New Compound --</option>
                 {% for compound in compounds %}
@@ -28,7 +27,7 @@
             </select>
         </div>
 
-        <h2>Calculator</h2>
+        
         <div class="calculator">
             <div class="input-group">
                 <label for="compound-name">Compound Name</label>
@@ -54,14 +53,14 @@
                 <input type="number" id="volume">
             </div>
             <div class="output-group">
-                <p>Weigh in: <span id="weigh-in-mass">0</span> mg (<span id="weigh-in-mass-g">0</span> g)</p>
+                <p>Weigh in: <span id="weigh-in-mass" class="calculated-value">0</span> mg <span class="sub-unit">(<span id="weigh-in-mass-g">0</span> g)</span></p>
             </div>
             <div class="input-group">
                 <label for="actual-weigh-in">Actual Weigh-in (mg)</label>
                 <input type="number" id="actual-weigh-in">
             </div>
             <div class="output-group">
-                <p>Required Volume: <span id="required-volume">0</span> ml</p>
+                <p>Required Volume: <span id="required-volume" class="calculated-value">0</span> ml <span class="sub-unit">(<span id="required-volume-ul">0</span> µl)</span></p>
             </div>
 
             <div id="calculation-overview" class="output-group" style="display: none;">
