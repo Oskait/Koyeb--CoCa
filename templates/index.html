@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concentration Calculator</title>
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Concentration Calculator</h1>
+
+    <div class="container">
+        <h2>Compounds</h2>
+        <table id="compounds-table">
+            <thead>
+                <tr>
+                    <th>Abbr. Name</th>
+                    <th>Select</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <h2>Calculator</h2>
+        <div class="calculator">
+            <div class="input-group">
+                <label for="molecular-weight">Molecular Weight (g/mol)</label>
+                <input type="number" id="molecular-weight" readonly>
+            </div>
+            <div class="input-group">
+                <label for="concentration">Concentration</label>
+                <input type="number" id="concentration">
+                <div class="toggle-switch">
+                    <label class="switch">
+                        <input type="checkbox" id="unit-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="unit-label">mM</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="volume">Desired Volume (ml)</label>
+                <input type="number" id="volume">
+            </div>
+            <div class="output-group">
+                <p>Weigh in: <span id="weigh-in-mass">0</span> mg (<span id="weigh-in-mass-g">0</span> g)</p>
+            </div>
+            <div class="input-group">
+                <label for="actual-weigh-in">Actual Weigh-in (mg)</label>
+                <input type="number" id="actual-weigh-in">
+            </div>
+            <div class="output-group">
+                <p>Required Volume: <span id="required-volume">0</span> ml</p>
+            </div>
+            <button id="save-stock">Save Stock</button>
+        </div>
+
+        <h2>Saved Stock Solutions</h2>
+        <table id="stock-solutions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Compound</th>
+                    <th>Concentration (mM)</th>
+                    <th>Concentration (mg/ml)</th>
+                    <th>Volume (ml)</th>
+                    <th>Weighed in (mg)</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
