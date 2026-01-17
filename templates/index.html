@@ -12,15 +12,15 @@
     <div class="container">
         <h2>Compound</h2>
         <div class="input-group">
-            <label for="compound-select">Select Compound</label>
+            <label for="compound-select">Select Compound (or enter manually below)</label>
             <select id="compound-select">
-                <option value="">-- Select a compound --</option>
+                <option value="">-- New Compound --</option>
                 {% for compound in compounds %}
                 <option value="{{ compound.id }}"
-                        data-mw="{{ compound.molecular_weight }}"
-                        data-conc-mm="{{ compound.default_conc_mM }}"
-                        data-conc-mgml="{{ compound.default_conc_mg_ml }}"
-                        data-vol="{{ compound.default_volume }}"
+                        data-mw="{{ compound.molecular_weight if compound.molecular_weight is not none else '' }}"
+                        data-conc-mm="{{ compound.default_conc_mM if compound.default_conc_mM is not none else '' }}"
+                        data-conc-mgml="{{ compound.default_conc_mg_ml if compound.default_conc_mg_ml is not none else '' }}"
+                        data-vol="{{ compound.default_volume if compound.default_volume is not none else '' }}"
                         data-name="{{ compound.abbr_name }}">
                     {{ compound.abbr_name }}
                 </option>
@@ -28,12 +28,15 @@
             </select>
         </div>
 
-
         <h2>Calculator</h2>
         <div class="calculator">
             <div class="input-group">
+                <label for="compound-name">Compound Name</label>
+                <input type="text" id="compound-name">
+            </div>
+            <div class="input-group">
                 <label for="molecular-weight">Molecular Weight (g/mol)</label>
-                <input type="number" id="molecular-weight" readonly>
+                <input type="number" id="molecular-weight">
             </div>
             <div class="input-group">
                 <label for="concentration">Concentration</label>
