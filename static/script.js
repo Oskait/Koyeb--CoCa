@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const compoundsTable = document.getElementById('compounds-table').getElementsByTagName('tbody')[0];
+    const compoundSelect = document.getElementById('compound-select');
     const stockSolutionsTable = document.getElementById('stock-solutions-table').getElementsByTagName('tbody')[0];
     const molecularWeightInput = document.getElementById('molecular-weight');
     const concentrationInput = document.getElementById('concentration');
@@ -11,26 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const actualWeighInInput = document.getElementById('actual-weigh-in');
     const requiredVolumeSpan = document.getElementById('required-volume');
     const saveStockButton = document.getElementById('save-stock');
+    const toggleStockButton = document.getElementById('toggle-stock-solutions');
+    const stockSolutionsWrapper = document.getElementById('stock-solutions-wrapper');
+    const calculationOverview = document.getElementById('calculation-overview');
+    const overviewName = document.getElementById('overview-name');
+    const overviewConcentration = document.getElementById('overview-concentration');
+    const overviewVolume = document.getElementById('overview-volume');
 
-    let compounds = [];
+
     let selectedCompound = null;
-
-    // Fetch compounds and populate table
-    fetch('/api/compounds')
-        .then(response => response.json())
-        .then(data => {
-            compounds = data;
-            compounds.forEach(compound => {
-                let row = compoundsTable.insertRow();
-                let nameCell = row.insertCell(0);
-                let selectCell = row.insertCell(1);
-                nameCell.textContent = compound.abbr_name;
-                let selectButton = document.createElement('button');
-                selectButton.textContent = 'Select';
-                selectButton.onclick = () => selectCompound(compound);
-                selectCell.appendChild(selectButton);
-            });
-        });
 
     // Fetch stock solutions and populate table
     function fetchStockSolutions() {
@@ -50,14 +39,35 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function selectCompound(compound) {
-        selectedCompound = compound;
-        molecularWeightInput.value = compound.molecular_weight;
-        concentrationInput.value = compound.default_conc_mM;
-        volumeInput.value = compound.default_volume;
-        unitToggle.checked = false;
-        unitLabel.textContent = 'mM';
+    function selectCompound() {
+        const selectedOption = compoundSelect.options[compoundSelect.selectedIndex];
+        if (!selectedOption.value) {
+            selectedCompound = null;
+            molecularWeightInput.value = '';
+            concentrationInput.value = '';
+            volumeInput.value = '';
+            actualWeighInInput.value = '';
+            requiredVolumeSpan.textContent = '0';
+            weighInMassSpan.textContent = '0';
+            weighInMassGSpan.textContent = '0';
+            calculationOverview.style.display = 'none';
+            return;
+        }
+
+        selectedCompound = {
+            id: selectedOption.value,
+            abbr_name: selectedOption.dataset.name,
+            molecular_weight: parseFloat(selectedOption.dataset.mw),
+            default_conc_mM: parseFloat(selectedOption.dataset.concMm),
+            default_conc_mg_ml: parseFloat(selectedOption.dataset.concMgml),
+            default_volume: parseFloat(selectedOption.dataset.vol)
+        };
+
+        molecularWeightInput.value = selectedCompound.molecular_weight;
+        concentrationInput.value = unitToggle.checked ? selectedCompound.default_conc_mg_ml : selectedCompound.default_conc_mM;
+        volumeInput.value = selectedCompound.default_volume;
         calculateWeighIn();
+        calculateRequiredVolume();
     }
 
     function calculateWeighIn() {
@@ -67,7 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let conc = parseFloat(concentrationInput.value);
         const vol = parseFloat(volumeInput.value);
 
-        if (isNaN(mw) || isNaN(conc) || isNaN(vol)) return;
+        if (isNaN(mw) || isNaN(conc) || isNaN(vol)) {
+            weighInMassSpan.textContent = '0';
+            weighInMassGSpan.textContent = '0';
+            return;
+        };
 
         let weighInMg = 0;
         if (unitToggle.checked) { // mg/ml
@@ -78,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         weighInMassSpan.textContent = weighInMg.toFixed(2);
         weighInMassGSpan.textContent = (weighInMg / 1000).toFixed(4);
+        updateOverview();
     }
 
     function calculateRequiredVolume() {
@@ -87,7 +102,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let conc = parseFloat(concentrationInput.value);
         const actualWeighIn = parseFloat(actualWeighInInput.value);
 
-        if (isNaN(mw) || isNaN(conc) || isNaN(actualWeighIn)) return;
+        if (isNaN(mw) || isNaN(conc) || isNaN(actualWeighIn)) {
+            requiredVolumeSpan.textContent = '0';
+            return;
+        }
 
         let reqVol = 0;
         if (unitToggle.checked) { // mg/ml
@@ -97,6 +115,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         requiredVolumeSpan.textContent = reqVol.toFixed(2);
+        updateOverview();
+    }
+    
+    function updateOverview() {
+        if (!selectedCompound) {
+            calculationOverview.style.display = 'none';
+            return;
+        }
+
+        const conc = parseFloat(concentrationInput.value);
+        const vol = parseFloat(requiredVolumeSpan.textContent) || parseFloat(volumeInput.value);
+        const unit = unitLabel.textContent;
+        
+        if(isNaN(conc) || isNaN(vol)) {
+            calculationOverview.style.display = 'none';
+            return;
+        }
+
+        overviewName.textContent = selectedCompound.abbr_name;
+        overviewConcentration.textContent = `${conc.toFixed(2)} ${unit}`;
+        
+        if (parseFloat(requiredVolumeSpan.textContent) > 0) {
+            overviewVolume.textContent = `${parseFloat(requiredVolumeSpan.textContent).toFixed(2)} ml`;
+        } else {
+             overviewVolume.textContent = `${parseFloat(volumeInput.value).toFixed(2)} ml`;
+        }
+
+
+        calculationOverview.style.display = 'block';
     }
 
     unitToggle.addEventListener('change', () => {
@@ -110,8 +157,14 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateRequiredVolume();
     });
 
-    concentrationInput.addEventListener('input', calculateWeighIn);
-    volumeInput.addEventListener('input', calculateWeighIn);
+    toggleStockButton.addEventListener('click', () => {
+        const isVisible = stockSolutionsWrapper.style.display === 'block';
+        stockSolutionsWrapper.style.display = isVisible ? 'none' : 'block';
+    });
+
+    compoundSelect.addEventListener('change', selectCompound);
+    concentrationInput.addEventListener('input', () => { calculateWeighIn(); calculateRequiredVolume(); });
+    volumeInput.addEventListener('input', () => { calculateWeighIn(); calculateRequiredVolume(); });
     actualWeighInInput.addEventListener('input', calculateRequiredVolume);
 
     saveStockButton.addEventListener('click', () => {
@@ -121,9 +174,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const concentration = parseFloat(concentrationInput.value);
-        const volume = parseFloat(requiredVolumeSpan.textContent);
         const weighedIn = parseFloat(actualWeighInInput.value);
         
+        if (isNaN(weighedIn) || weighedIn <= 0) {
+            alert('Please enter a valid actual weigh-in amount.');
+            return;
+        }
+        
+        const volume = parseFloat(requiredVolumeSpan.textContent);
+
+
         let concentration_mM = 0;
         let concentration_mg_ml = 0;
 
@@ -154,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(() => {
             fetchStockSolutions();
+            alert('Stock solution saved!');
         });
     });
 

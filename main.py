@@ -67,7 +67,8 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse("index.html", {"request": request})
+    compounds = db.query(Compound).all()
+    return templates.TemplateResponse("index.html", {"request": request, "compounds": compounds})
 
 @app.get("/api/compounds", response_model=List[CompoundInDB])
 def get_compounds(db: Session = Depends(get_db)):

@@ -4,3 +4,4 @@ SQLAlchemy
 python-multipart
 Jinja2
 pydantic
+PyQt6

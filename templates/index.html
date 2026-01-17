@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Concentration Calculator</title>
     <link href="/static/style.css" rel="stylesheet">
 </head>
@@ -10,17 +10,24 @@
     <h1>Concentration Calculator</h1>
 
     <div class="container">
-        <h2>Compounds</h2>
-        <table id="compounds-table">
-            <thead>
-                <tr>
-                    <th>Abbr. Name</th>
-                    <th>Select</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <h2>Compound</h2>
+        <div class="input-group">
+            <label for="compound-select">Select Compound</label>
+            <select id="compound-select">
+                <option value="">-- Select a compound --</option>
+                {% for compound in compounds %}
+                <option value="{{ compound.id }}"
+                        data-mw="{{ compound.molecular_weight }}"
+                        data-conc-mm="{{ compound.default_conc_mM }}"
+                        data-conc-mgml="{{ compound.default_conc_mg_ml }}"
+                        data-vol="{{ compound.default_volume }}"
+                        data-name="{{ compound.abbr_name }}">
+                    {{ compound.abbr_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
 
         <h2>Calculator</h2>
         <div class="calculator">
@@ -53,24 +60,34 @@
             <div class="output-group">
                 <p>Required Volume: <span id="required-volume">0</span> ml</p>
             </div>
+
+            <div id="calculation-overview" class="output-group" style="display: none;">
+                <p>Final solution: <span id="overview-name"></span>, <span id="overview-concentration"></span>, <span id="overview-volume"></span></p>
+            </div>
+
             <button id="save-stock">Save Stock</button>
         </div>
 
-        <h2>Saved Stock Solutions</h2>
-        <table id="stock-solutions-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Compound</th>
-                    <th>Concentration (mM)</th>
-                    <th>Concentration (mg/ml)</th>
-                    <th>Volume (ml)</th>
-                    <th>Weighed in (mg)</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="stock-solutions-container">
+            <button id="toggle-stock-solutions">Toggle Saved Stock Solutions</button>
+            <div id="stock-solutions-wrapper" style="display:none;">
+                <h2>Saved Stock Solutions</h2>
+                <table id="stock-solutions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Compound</th>
+                            <th>Concentration (mM)</th>
+                            <th>Concentration (mg/ml)</th>
+                            <th>Volume (ml)</th>
+                            <th>Weighed in (mg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script src="/static/script.js"></script>
